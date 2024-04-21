@@ -4,6 +4,7 @@
 use core::future::Future;
 #[cfg(feature = "sync")]
 use embedded_hal::delay::DelayNs;
+use embedded_hal::spi::Operation;
 #[cfg(feature = "sync")]
 use embedded_hal::spi::SpiDevice;
 #[cfg(feature = "async")]
@@ -252,7 +253,7 @@ where
         data: &mut [u8],
     ) -> Result<(), Error<SPIError<SPI::Error>>> {
         self.spi
-            .transfer(data, &[register])
+            .transaction(&mut [Operation::Write(&[register]), Operation::Read(data)])
             .await
             .map_err(|e| Error::Bus(SPIError::SPI(e)))?;
         Ok(())
